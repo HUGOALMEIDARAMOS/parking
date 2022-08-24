@@ -3,6 +3,8 @@ package com.api.parkingcontrol.controllers;
 import com.api.parkingcontrol.dtos.ParkingSpotDto;
 import com.api.parkingcontrol.models.ParkinSpotModel;
 import com.api.parkingcontrol.services.ParkingSpotService;
+
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ import java.util.UUID;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/parking-spot")
@@ -35,7 +38,8 @@ public class ParkingSpotController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping
+    @ApiOperation(value = "Efetua o cadastro de uma vaga de garagem")
+    @PostMapping(produces="application/json", consumes="application/json")
     public ResponseEntity<Object> saveparkingSpot(@RequestBody @Valid ParkingSpotDto parkingSpotDto ){
 
         if(parkingSpotService.existsByLicensePlateCar(parkingSpotDto.getLicensePlateCar())){
@@ -53,9 +57,9 @@ public class ParkingSpotController {
         parkingSpotModel.setRegistrationDate(LocalDateTime.now(ZoneId.of("UTC")));
         return ResponseEntity.status(HttpStatus.CREATED).body(parkingSpotService.save(parkingSpotModel));
     }
-
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    @GetMapping
+    @ApiOperation(value = "Lista todos os registros")
+    @GetMapping( produces="application/json")
     public ResponseEntity<List<ParkinSpotModel>> getAllParkingSpots(){
 
         //FORMA DE UTILIZAÇÃO COM HATEOS PARA SE ADEQUAR AO PADRAO RESTFULL, ESSA DEPENDENCIA CRIA LINKS
@@ -77,13 +81,14 @@ public class ParkingSpotController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    @GetMapping("/paginacaoList")
+    @ApiOperation(value = "Inseri paginação da listagem dos registros")
+    @GetMapping(value="/paginacaoList",  produces="application/json")
     public ResponseEntity<Page<ParkinSpotModel>> getAllParkingSpotspagination(@PageableDefault(page=0, size=10, sort="id", direction= Sort.Direction.ASC) Pageable pageable){
         return  ResponseEntity.status(HttpStatus.OK).body(parkingSpotService.findAllPagination(pageable));
     }
-
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    @GetMapping("/{id}")
+    @ApiOperation(value = "Lista um registro em especifico")
+    @GetMapping(value="/{id}",  produces="application/json")
     public ResponseEntity<Object> getOneParkingSpot(@PathVariable(value = "id") UUID id){
         Optional<ParkinSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
         if(!parkingSpotModelOptional.isPresent()){
@@ -95,7 +100,8 @@ public class ParkingSpotController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/{id}")
+    @ApiOperation(value = "Exclui do banco um determinado registro")
+    @DeleteMapping(value = "/{id}", produces="application/json", consumes="application/json")
     public ResponseEntity<Object> deleteParkingSpot(@PathVariable(value = "id") UUID id){
         Optional<ParkinSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
         if(!parkingSpotModelOptional.isPresent()){
@@ -107,7 +113,8 @@ public class ParkingSpotController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/{id}")
+    @ApiOperation(value = "Efetua alteração em um determinado registro")
+    @PutMapping(value = "/{id}", produces="application/json", consumes="application/json")
     ResponseEntity<Object> updateParkingSpot(@PathVariable(value = "id") UUID id, @RequestBody @Valid ParkingSpotDto parkingSpotDto){
         Optional<ParkinSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
         if(!parkingSpotModelOptional.isPresent()){

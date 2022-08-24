@@ -1,7 +1,6 @@
 package com.api.parkingcontrol.configs.security;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,21 +28,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "parking-spot/**").permitAll()
                 .antMatchers(HttpMethod.POST, "parking-spot").hasRole("USER")
                 .antMatchers(HttpMethod.DELETE, "parking-spot/**").hasRole("ADMIN")
+                .antMatchers("v2/api-docs", "/configuration/ui", "/swagger-resources/**",
+                        "configuration/security", "/swagger-ui.html", "/webjars/").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable();
     }
 
-    /*//autenticacao em memoria
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("hugo")
-                .password(passwordEncoder().encode("hugo2010"))
-                .roles("ADMIN");
-    }*/
-
-    // Usando agora autenticação com jpa-banco
+       // Usando agora autenticação com jpa-banco
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsServiceImpl)
